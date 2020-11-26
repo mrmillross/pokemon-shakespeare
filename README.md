@@ -16,5 +16,7 @@ It will also cache the 429 (too many requests) response from the pokemon api, as
 
 Unfortunately I ran out of time for adding a usable dockerfile, but my git commit history should be visible on github as the repository is (I hope) public.
 
-Thanks you for reading.
+I would have also liked to have written some more tests, being able to assert that a value came from the cache rather than the remote api - but this proved slightly more of a challenge to proxy/stub than I thought, so I ran out of time a little bit here too.
+
+Thanks for reading.
 Matt
