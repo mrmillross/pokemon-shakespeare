@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,6 +22,9 @@ namespace PokemonShakespeareApi
         {
             services.Configure<PokemonConfig>(Configuration.GetSection("PokemonConfig"));
             services.Configure<ShakespeareConfig>(Configuration.GetSection("ShakespeareConfig"));
+            services.AddSingleton<ITranslateIntoShakespeare, ShakespeareTranslationService>();
+            services.AddSingleton<IGetPokemonDetails, PokemonGetterService>();
+            services.AddSingleton<IMemoryCache, MemoryCache>();
             services.AddHttpClient();
             services.AddControllers();
         }

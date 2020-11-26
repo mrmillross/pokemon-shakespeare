@@ -1,4 +1,7 @@
 ﻿using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -7,7 +10,7 @@ using Microsoft.Extensions.Options;
 namespace PokemonShakespeareApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/pokemon")]
     public class PokemonTranslationController : ControllerBase
     {
         private readonly ILogger<PokemonTranslationController> _logger;
@@ -22,24 +25,31 @@ namespace PokemonShakespeareApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get(string pokemonName)
+        [Route("translation")]
+        public async Task<IActionResult> GetTranslation(string pokemonName)
         {
             _logger.LogInformation($"Getting pokemon details for {pokemonName}");
-            var pokemonDescription = _pokemonService.GetDescription(pokemonName);
+            var pokemonDescription = await _pokemonService.GetDescription(pokemonName);
             _logger.LogInformation($"Finding shakespeare for {pokemonName}");
-            var translation = _shakespeareService.GetTranslation(pokemonDescription);
-            return new JsonResult(new {name = pokemonName, description = translation});
+            var translation = await _shakespeareService.GetTranslation(pokemonDescription);
+            return new JsonResult(new { name = pokemonName, description = translation });
+        }
+
+        [Route("health")]
+        public IActionResult Healthy()
+        {
+            return new StatusCodeResult(200);
         }
     }
 
     public interface IGetPokemonDetails
     {
-        public string GetDescription(string pokemonName);
+        public Task<string> GetDescription(string pokemonName);
     }
 
     public interface ITranslateIntoShakespeare
     {
-        public string GetTranslation(string input);
+        public Task<string> GetTranslation(string input);
     }
 
     public class ShakespeareTranslationService : ITranslateIntoShakespeare
@@ -55,9 +65,12 @@ namespace PokemonShakespeareApi.Controllers
             _config = config;
         }
 
-        public string GetTranslation(string input)
+        public async Task<string> GetTranslation(string input)
         {
-            throw new System.NotImplementedException();
+            var client = _httpClientFactory.CreateClient("TranslationClient");
+            var tempStr = new { text = "hello there dear boy I am Matt and I live in a hat" };
+            var result = await client.PostAsync(_config.Value.Url, new StringContent(JsonSerializer.Serialize(tempStr), Encoding.UTF8, "application/json"));
+            return await result.Content.ReadAsStringAsync();
         }
     }
 
@@ -84,9 +97,11 @@ namespace PokemonShakespeareApi.Controllers
             _config = config;
         }
 
-        public string GetDescription(string pokemonName)
+        public async Task<string> GetDescription(string pokemonName)
         {
-            throw new System.NotImplementedException();
+            var client = _httpClientFactory.CreateClient("PokemonClient");
+            var result = await client.GetAsync(string.Format(_config.Value.Uri, pokemonName));
+            return await result.Content.ReadAsStringAsync();
         }
     }
 
