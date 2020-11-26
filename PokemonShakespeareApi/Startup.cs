@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PokemonShakespeareApi.Config;
-using PokemonShakespeareApi.Controllers;
 using PokemonShakespeareApi.Interfaces;
 using PokemonShakespeareApi.Services;
 

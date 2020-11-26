@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PokemonShakespeareApi.Interfaces;
@@ -25,11 +27,20 @@ namespace PokemonShakespeareApi.Controllers
         public async Task<IActionResult> GetTranslation(string pokemonName)
         {
             _logger.LogInformation($"Getting pokemon details for {pokemonName}");
-            var speciesFlavorText = await _pokemonService.GetDescription(pokemonName);
-            _logger.LogInformation($"Finding shakespeare for {pokemonName}");
-            var translation = await _shakespeareService.GetTranslation(pokemonName, speciesFlavorText);
-            _logger.LogInformation("Translation complete!");
-            return Content(translation, "application/json");
+            try
+            {
+                var speciesFlavorText = await _pokemonService.GetDescription(pokemonName);
+                _logger.LogInformation($"Finding shakespeare for {pokemonName}");
+                var translation = await _shakespeareService.GetTranslation(pokemonName, speciesFlavorText);
+                _logger.LogInformation("Translation complete!");
+                var response = new ContentResult { Content = translation, ContentType = "application/json", StatusCode = (int)HttpStatusCode.OK };
+                return response;
+            }
+            catch (Exception)
+            {
+                return new ContentResult { Content = $"Unable to translate pokemon text for {pokemonName}", ContentType = "application/json", StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+
         }
 
         [Route("health")]

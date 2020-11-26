@@ -41,7 +41,7 @@ namespace PokemonShakespeareApi.Services
             // this is a little bit belt-and-braces, but for the purposes of this tech test I think it's okay.
             var flavorText = parsedSpecies.FlavorTextEntries
                 .Where(x => x.Language.Name == "en")
-                .Select(x => x.FlavorText.Replace(@"\r", "").Replace(@"\n", ""))
+                .Select(x => x.FlavorText)
                 .Distinct();
 
             return string.Join(", ", flavorText);
@@ -51,6 +51,9 @@ namespace PokemonShakespeareApi.Services
         {
             var client = _httpClientFactory.CreateClient("PokemonClient");
             var result = await client.GetAsync(string.Format(_config.Value.Url, pokemonName));
+            if (!result.IsSuccessStatusCode)
+                throw new Exception($"Unable to retrieve content for {pokemonName}");
+
             var stringResult = await result.Content.ReadAsStringAsync();
             return stringResult;
         }

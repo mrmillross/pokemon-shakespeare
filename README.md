@@ -14,5 +14,7 @@ I've added a naive caching mechanism, with a configurable expiry. This implement
 
 It will also cache the 429 (too many requests) response from the pokemon api, as it is quite restrictive - this is another thing that I would change if I had more time.
 
+Unfortunately I ran out of time for adding a usable dockerfile, but my git commit history should be visible on github as the repository is (I hope) public.
+
 Thanks you for reading.
 Matt
