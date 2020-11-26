@@ -10,9 +10,11 @@ namespace PokemonShakespeareApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostEnvironment env)
         {
             Configuration = configuration;
+            var builder = new ConfigurationBuilder().SetBasePath(env.ContentRootPath).AddJsonFile("appsettings.json");
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -24,9 +26,15 @@ namespace PokemonShakespeareApi
             services.Configure<ShakespeareConfig>(Configuration.GetSection("ShakespeareConfig"));
             services.AddSingleton<ITranslateIntoShakespeare, ShakespeareTranslationService>();
             services.AddSingleton<IGetPokemonDetails, PokemonGetterService>();
-            services.AddSingleton<IMemoryCache, MemoryCache>();
             services.AddHttpClient();
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(jsonOps =>
+            {
+                jsonOps.JsonSerializerOptions.WriteIndented = true;
+                jsonOps.JsonSerializerOptions.AllowTrailingCommas = false;
+                jsonOps.JsonSerializerOptions.IgnoreNullValues = true;
+            });
+            services.AddMvcCore();
+            services.AddMemoryCache();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
